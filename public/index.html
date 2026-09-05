@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Agentic Checkout</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 40px auto; }
+    #chatBox { border: 1px solid #ccc; padding: 16px; height: 300px; overflow-y: auto; margin-bottom: 12px; }
+    .msg { margin: 8px 0; }
+    .user { color: #333; font-weight: bold; }
+    .agent { color: #0a5; }
+    .fail { color: #c00; }
+    input { width: 75%; padding: 8px; }
+    button { padding: 8px 16px; }
+  </style>
+</head>
+<body>
+  <h2>🛒 Agentic Checkout — Mandate-Gated AI Buyer</h2>
+  <div id="chatBox"></div>
+  <input id="msgInput" placeholder='e.g. "buy something in electronics under 2000"' />
+  <button onclick="sendMsg()">Send</button>
+
+  <script>
+    async function sendMsg() {
+      const input = document.getElementById("msgInput");
+      const message = input.value;
+      if (!message) return;
+      addLine("You: " + message, "user");
+      input.value = "";
+
+      const res = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+      });
+      const data = await res.json();
+    if (data.options && data.options.length > 0) {
+  const box = document.getElementById("chatBox");
+  data.options.forEach((opt) => {
+    const div = document.createElement("div");
+    div.className = "msg agent";
+    div.innerHTML = `<img src="${opt.image}" style="height:60px;vertical-align:middle;margin-right:8px;">${opt.title} — ₹${opt.price}`;
+    box.appendChild(div);
+  });
+}
+    }
+
+    function addLine(text, cls) {
+      const box = document.getElementById("chatBox");
+      const div = document.createElement("div");
+      div.className = "msg " + cls;
+      div.textContent = text;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+  </script>
+</body>
+</html>
